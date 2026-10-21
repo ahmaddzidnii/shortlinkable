@@ -3,7 +3,7 @@ import { z } from "zod";
 import { protectedProcedure, createTRPCRouter } from "../init";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "@/constants";
 import { Prisma } from "@/generated/prisma/client";
-import { encodeBytesToBase62 } from "@/lib/base62";
+import { decodeBase62ToBytes, encodeBytesToBase62 } from "@/lib/base62";
 import { TRPCError } from "@trpc/server";
 
 
@@ -21,6 +21,7 @@ const urlsRouter = createTRPCRouter({
             pageSize: z.number().min(MIN_PAGE_SIZE).max(MAX_PAGE_SIZE).default(DEFAULT_PAGE_SIZE),
             search: z.string().nullish(),
         })).query(async ({ ctx, input }) => {
+            const start = performance.now();
             const { page, pageSize, search } = input;
 
             const where: Prisma.UrlWhereInput = search
@@ -32,30 +33,34 @@ const urlsRouter = createTRPCRouter({
                 }
                 : {};
 
-            const links = await ctx.prisma.url.findMany({
-                where,
-                orderBy: {
-                    createdAt: "desc",
-                },
-                skip: (page - 1) * pageSize,
-                take: pageSize,
-            });
-
-            const total = await ctx.prisma.url.count({
-                where: {
-                    originalUrl: search ? { contains: search } : undefined,
-                },
-            });
+            const [links, total] = await Promise.all([
+                ctx.prisma.url.findMany({
+                    where,
+                    orderBy: { createdAt: "desc" },
+                    skip: (page - 1) * pageSize,
+                    take: pageSize,
+                }),
+                ctx.prisma.url.count({ where }),
+            ]);
 
             const totalPages = Math.ceil(total / pageSize);
+
+            const duration = Math.round(performance.now() - start);
 
             return {
                 items: links.map((link) => ({
                     ...link,
                     id: encodeBytesToBase62(link.id),
                 })),
-                total,
-                totalPages,
+                pagination: {
+                    page,
+                    pageSize,
+                    total,
+                    totalPages,
+                    startRecord: total === 0 ? 0 : (page - 1) * pageSize + 1,
+                    endRecord: Math.min(page * pageSize, total),
+                },
+                duration,
             };
         }),
     checkUniquePath: protectedProcedure.input(
@@ -114,7 +119,20 @@ const urlsRouter = createTRPCRouter({
             id: encodeBytesToBase62(newUrl.id),
         };
 
+    }),
+    destroy: protectedProcedure.input(
+        z.object({
+            id: z.string().min(1),
+        })
+    ).mutation(async ({ ctx, input }) => {
+        const { id } = input;
+        await ctx.prisma.url.delete({
+            where: {
+                id: decodeBase62ToBytes(id),
+            },
+        });
     })
 })
+
 
 export default urlsRouter;

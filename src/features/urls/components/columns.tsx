@@ -1,7 +1,7 @@
 "use client";
 
 import { createColumnHelper } from "@tanstack/react-table";
-import { Copy, ExternalLink, MoreHorizontal } from "lucide-react";
+import { Copy, ExternalLink, MoreHorizontal, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -17,6 +17,9 @@ import {
 import { getFullShortUrl } from "./lib";
 import { type DataTableFeatures } from "./data-table-features";
 import type { UrlItem } from "./types";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTRPC } from "@/trpc/client";
+import { toast } from "@/components/ui/toast";
 
 const columnHelper = createColumnHelper<DataTableFeatures, UrlItem>();
 
@@ -91,6 +94,21 @@ export const columns = columnHelper.columns([
       const item = row.original;
       const fullUrl = getFullShortUrl(item);
 
+      const trpc = useTRPC();
+      const queryClient = useQueryClient();
+      const destroyUrlMutation = useMutation(
+        trpc.urls.destroy.mutationOptions({
+          onSuccess: () => {
+            queryClient.invalidateQueries({
+              queryKey: trpc.urls.getAll.queryKey(),
+            });
+          },
+          onError: (error) => {
+            console.error(error);
+          },
+        }),
+      );
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger
@@ -113,6 +131,20 @@ export const columns = columnHelper.columns([
             >
               <Copy className="mr-2 size-4" />
               Copy Short Link
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              disabled={destroyUrlMutation.isPending}
+              closeOnClick={false}
+              onClick={() => {
+                toast.promise(destroyUrlMutation.mutateAsync({ id: item.id }), {
+                  error: "Gagal menghapus URL",
+                  loading: "Menghapus URL...",
+                  success: "URL berhasil dihapus",
+                });
+              }}
+            >
+              <Trash2 className="mr-2 size-4" />
+              Hapus
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => window.open(item.originalUrl, "_blank", "noopener,noreferrer")}>Visit Original Link</DropdownMenuItem>

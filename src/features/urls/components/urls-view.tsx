@@ -31,11 +31,12 @@ function UrlsTableContent() {
     <>
       <DataTable data={urls} />
       <DataPagination
-        page={filters.page}
-        totalPages={data?.totalPages}
-        onPageChange={(newPage) => {
-          setFilters({ ...filters, page: newPage });
-        }}
+        page={data.pagination.page}
+        pageSize={data.pagination.pageSize}
+        total={data.pagination.total}
+        totalPages={data.pagination.totalPages}
+        duration={data.duration}
+        onPageChange={(page) => setFilters({ ...filters, page })}
       />
     </>
   );
