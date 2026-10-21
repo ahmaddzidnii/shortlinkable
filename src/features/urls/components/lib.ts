@@ -1,6 +1,6 @@
 import type { UrlItem } from "./types";
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "";
+const BASE_URL = "https://links.ahmadzidni.com"
 
 /** Builds the public short URL for a URL record. */
 export function getFullShortUrl(item: UrlItem): string {
