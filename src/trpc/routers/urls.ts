@@ -1,15 +1,21 @@
 import { z } from "zod";
 
-import { baseProcedure, createTRPCRouter } from "../init";
+import { protectedProcedure, createTRPCRouter } from "../init";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "@/constants";
 import { Prisma } from "@/generated/prisma/client";
 import { encodeBytesToBase62 } from "@/lib/base62";
 import { TRPCError } from "@trpc/server";
-import { generate8ByteId } from "../../../scripts/seed";
+
+
+export const generate8ByteId = (): Uint8Array<ArrayBuffer> => {
+    const bytes = new Uint8Array(8);
+    crypto.getRandomValues(bytes);
+    return bytes;
+}
 
 
 const urlsRouter = createTRPCRouter({
-    getAll: baseProcedure.input(
+    getAll: protectedProcedure.input(
         z.object({
             page: z.number().min(MIN_PAGE_SIZE).default(DEFAULT_PAGE),
             pageSize: z.number().min(MIN_PAGE_SIZE).max(MAX_PAGE_SIZE).default(DEFAULT_PAGE_SIZE),
@@ -52,7 +58,7 @@ const urlsRouter = createTRPCRouter({
                 totalPages,
             };
         }),
-    checkUniquePath: baseProcedure.input(
+    checkUniquePath: protectedProcedure.input(
         z.object({
             uniquePath: z.string().min(1).max(100),
         })
@@ -69,7 +75,7 @@ const urlsRouter = createTRPCRouter({
         }
         return { isAvailable: true };
     }),
-    create: baseProcedure.input(
+    create: protectedProcedure.input(
         z.object({
             originalUrl: z.string().url(),
             uniquePath: z.string().min(1).max(64).optional(),

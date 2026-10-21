@@ -17,7 +17,7 @@ export default async function ManageURLPage({ searchParams }: Props) {
     }),
   );
   return (
-    <div className="mx-auto max-w-[1300px] w-full flex flex-col items-center justify-center gap-4">
+    <div className="mx-auto px-4 min-[1300px]:px-0  max-w-[1300px] w-full flex flex-col items-center justify-center gap-4">
       <HydrateClient>
         <UrlsView />
       </HydrateClient>
