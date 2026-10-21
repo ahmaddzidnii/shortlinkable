@@ -1,8 +1,9 @@
 import Navbar from "@/components/navbar";
+import { TRPCReactProvider } from "@/trpc/client";
 
 export default function ManageLayout({ children }: LayoutProps<"/manage">) {
   return (
-    <>
+    <TRPCReactProvider>
       <Navbar />
       <div className="flex-1 pt-24">{children}</div>
       <footer className="border-t-4 border-border bg-secondary-background text-center font-base sm:text-base text-sm text-foreground">
@@ -18,6 +19,6 @@ export default function ManageLayout({ children }: LayoutProps<"/manage">) {
           , for myself.
         </div>
       </footer>
-    </>
+    </TRPCReactProvider>
   );
 }

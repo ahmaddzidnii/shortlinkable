@@ -1,11 +1,26 @@
-import DataTableDemo from "@/components/data-table-demo";
-import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
+import { SearchParams } from "nuqs";
 
-export default function Home() {
+import { UrlsView } from "@/features/urls/components/urls-view";
+import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { loadSearchParams } from "@/features/urls/params";
+
+interface Props {
+  searchParams: Promise<SearchParams>;
+}
+
+export default async function ManageURLPage({ searchParams }: Props) {
+  const filters = await loadSearchParams(searchParams);
+
+  prefetch(
+    trpc.urls.getAll.queryOptions({
+      ...filters,
+    }),
+  );
   return (
     <div className="mx-auto max-w-[1300px] w-full flex flex-col items-center justify-center gap-4">
-      <DataTableDemo />
+      <HydrateClient>
+        <UrlsView />
+      </HydrateClient>
     </div>
   );
 }

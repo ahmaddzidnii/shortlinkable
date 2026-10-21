@@ -13,6 +13,12 @@ for (let i = 0; i < CHARSET.length; i++) {
  * Mengonversi Buffer (Bytes) menjadi Base62 string.
  */
 export function encodeBytesToBase62(bytes: Uint8Array | Buffer): string {
+    if (!(bytes instanceof Uint8Array)) {
+        throw new TypeError(
+            `Expected Uint8Array, received ${typeof bytes}: ${String(bytes)}`
+        );
+    }
+
     if (bytes.length === 0) return "";
 
     // 1. Hitung leading zeros (agar byte bernilai 0x00 tidak hilang)

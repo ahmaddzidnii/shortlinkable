@@ -67,6 +67,10 @@
 }
 
 @layer base {
+  html {
+    scrollbar-gutter: stable;
+  }
+
   body {
     font-weight: var(--font-weight-base);
     color: var(--foreground);

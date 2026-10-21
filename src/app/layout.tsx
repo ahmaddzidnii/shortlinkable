@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
+
 import "./globals.css";
-import Navbar from "@/components/navbar";
+import { Toaster } from "@/components/ui/toast";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -19,7 +21,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${dmSans.variable}  h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <NuqsAdapter>
+          {children}
+          <Toaster />
+        </NuqsAdapter>
+      </body>
     </html>
   );
 }
