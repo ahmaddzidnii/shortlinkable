@@ -1,0 +1,22 @@
+services:
+  shortlinkable:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: shortlinkable-image
+    container_name: shortlinkable-container
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: "0.0.0.0"
+    networks:
+      - cloudflare
+    ports:
+      - "3001:3000"
+    restart: unless-stopped
+
+networks:
+  cloudflare:
+    external: true
