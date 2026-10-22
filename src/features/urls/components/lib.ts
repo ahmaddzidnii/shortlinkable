@@ -14,3 +14,12 @@ export function getFullShortUrl(item: UrlItem): string {
   // Relative URLs work in anchors and avoid hydration mismatches.
   return `/${path}`;
 }
+
+
+export const RESERVED_SLUGS = new Set([
+  "manage",
+  "api",
+  "favicon.ico",
+  "robots.txt",
+  "sitemap.xml",
+]);

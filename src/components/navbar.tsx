@@ -1,7 +1,6 @@
 import Link from "next/link";
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
+
 import { UserProfileDropdown } from "@/features/auth/components/user-profile";
 
 async function Navbar() {
@@ -21,7 +20,7 @@ async function Navbar() {
                 unoptimized
               />
             </div>
-            <span>Links</span>
+            <span>Shortlinkable</span>
           </Link>
         </div>
 

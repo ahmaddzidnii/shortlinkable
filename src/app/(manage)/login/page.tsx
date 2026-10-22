@@ -1,9 +1,14 @@
 import { LoginForm } from "@/features/auth/components/login-form";
 import { auth } from "@/lib/auth";
+import { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Login",
+};
 
 export default async function LoginPage() {
   const session = await auth.api.getSession({

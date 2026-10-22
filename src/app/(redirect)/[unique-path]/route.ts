@@ -2,14 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 import prisma from "@/lib/prisma";
 import { decodeBase62ToBytes } from "@/lib/base62";
+import { RESERVED_SLUGS } from "@/features/urls/components/lib";
 
-const RESERVED_SLUGS = new Set([
-    "manage",
-    "api",
-    "favicon.ico",
-    "robots.txt",
-    "sitemap.xml",
-]);
 
 const NOT_FOUND_REDIRECT_URL = "/?reason=destination-not-found";
 

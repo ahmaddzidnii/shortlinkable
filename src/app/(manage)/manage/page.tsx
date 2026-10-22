@@ -3,10 +3,15 @@ import { SearchParams } from "nuqs";
 import { UrlsView } from "@/features/urls/components/urls-view";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { loadSearchParams } from "@/features/urls/params";
+import { Metadata } from "next";
 
 interface Props {
   searchParams: Promise<SearchParams>;
 }
+
+export const metadata: Metadata = {
+  title: "Manage URLs",
+};
 
 export default async function ManageURLPage({ searchParams }: Props) {
   const filters = await loadSearchParams(searchParams);

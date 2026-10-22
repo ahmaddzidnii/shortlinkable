@@ -5,6 +5,7 @@ import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "@
 import { Prisma } from "@/generated/prisma/client";
 import { decodeBase62ToBytes, encodeBytesToBase62 } from "@/lib/base62";
 import { TRPCError } from "@trpc/server";
+import { RESERVED_SLUGS } from "@/features/urls/components/lib";
 
 
 export const generate8ByteId = (): Uint8Array<ArrayBuffer> => {
@@ -70,6 +71,10 @@ const urlsRouter = createTRPCRouter({
     ).query(async ({ ctx, input }) => {
         const { uniquePath } = input;
 
+        if (RESERVED_SLUGS.has(uniquePath.toLowerCase())) {
+            return { isAvailable: false };
+        }
+
         const existingUrl = await ctx.prisma.url.findUnique({
             where: {
                 uniquePath,
@@ -83,7 +88,9 @@ const urlsRouter = createTRPCRouter({
     create: protectedProcedure.input(
         z.object({
             originalUrl: z.string().url(),
-            uniquePath: z.string().min(1).max(64).optional(),
+            uniquePath: z.string().min(1).max(64).optional().refine((val) => !val || !RESERVED_SLUGS.has(val.toLowerCase()), {
+                message: "Custom path tidak boleh mengandung kata yang dilarang.",
+            }),
         })
     ).mutation(async ({ ctx, input }) => {
         const { originalUrl, uniquePath } = input;
